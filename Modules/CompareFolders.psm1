@@ -8,10 +8,10 @@ class CompareFolders {
     [PSCustomObject]$logger
     [bool]$debug
 
-    CompareFolders([PSCustomObject] $utility, [PSCustomObject] $logger) {
+    CompareFolders([PSCustomObject] $utility, [PSCustomObject] $logger, [switch]$debug) {
         $this.utility = $utility
         $this.logger = $logger
-        $this.debug = $false
+        $this.debug = $debug
     }
 
     [void]setOriginalRoot() {
@@ -39,6 +39,8 @@ class CompareFolders {
     [void]compareOriginalAndTarget() {
         $originalItems = Get-ChildItem -Path $this.originalRoot -Recurse
         $counter = 0
+        $missingFiles = @()
+
 
 
         foreach ($path in $originalItems) {
@@ -47,12 +49,15 @@ class CompareFolders {
 
 
             if (! (Test-Path $targetPath)) {
-                $this.logger.logMissingFile($relativePath)
+                Write-Host "File missing"
+                $missingFiles += $targetPath
                 $counter++
             }
         }
         if ($counter -Eq 0) {
             Write-Host -ForegroundColor White -BackgroundColor DarkGreen "No files were missing"
+        } else {
+            $this.logger.logMissingFiles($missingFiles)
         }
     }
 
@@ -64,9 +69,13 @@ class CompareFolders {
 }
 
 Function New-CompareFolders {
+    [CmdletBinding()]
+    Param (
+        [switch]$Testing
+    )
     $utility = New-Utility
     $logger = New-Logger
-    [CompareFolders]::new($utility, $logger)
+    [CompareFolders]::new($utility, $logger, $Testing)
 }
 
 

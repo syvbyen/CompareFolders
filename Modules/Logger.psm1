@@ -1,6 +1,6 @@
 
 class Logger {
-    [void]logMissingFile([string]$pathToLog) {
+    [void]logMissingFiles([System.Object[]]$pathsToLog) {
         $date = Get-Date -Format "MM-dd_HH-mm-ss"
         $fileName = "missing_$date.txt"
 
@@ -8,8 +8,8 @@ class Logger {
             New-Item -ItemType Directory -Path "./Logs"
         }
 
-        "`"$pathToLog`" is missing" | Out-File -FilePath "./Logs/$fileName"
-        Write-Host "Added missing file"
+        $pathsToLog | Out-File -FilePath "./Logs/$fileName"
+        Write-Host "Added missing files to file $fileName"
     }
 
 }
